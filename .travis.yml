@@ -11,6 +11,9 @@ install:
   - sudo apt-get install -y unzip 
 
 script:  
+  - echo $(pwd)
+  - echo $(HOME)
+  - echo $(TRAVIS_BUILD_DIR)
   - cd /usr/local
   - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2  
   - tar xvjf binutils-2.29.1.tar.bz2  
