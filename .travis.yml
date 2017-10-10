@@ -10,14 +10,11 @@ install:
   - sudo apt-get install -y unzip 
 
 script:  
-  - echo "$(pwd)"
-  - echo "$HOME"
-  - echo "$TRAVIS_BUILD_DIR"
-  - cd /usr/local
+  - cd ..
   - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2  
   - tar xvjf binutils-2.29.1.tar.bz2  
   - cd binutils-2.29.1  
-  - ./configure --target=m68k-elf --prefix=/usr/local/binutils  
+  - ./configure --target=m68k-elf --prefix=$(pwd)/../binutils  
   - make  
   - make install
   - cd ..
@@ -25,15 +22,16 @@ script:
   - unzip freepascal.zip  
   - cd freepascal-freepascal  
   - make all  
-  - make install INSTALL_PREFIX=/usr/local/fpc  
-  - PATH=/usr/local/binutils/bin:$PATH make all CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf-  
-  - make crossinstall OS_TARGET=linux CPU_TARGET=m68k INSTALL_PREFIX=/usr/local/fpc  
-  - cd /usr/local/fpc/lib/fpc/3.1.1  
-  - /usr/local/fpc/bin/fpcmkcfg -d basepath=/usr/local/fpc/lib/fpc/3.1.1 -d sharepath=/usr/local/fpc/lib/fpc/3.1.1 -o ./fpc.cfg 
+  - make install INSTALL_PREFIX=$(pwd)/../fpc  
+  - PATH=$(pwd)/../binutils/bin:$PATH make all CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf-  
+  - make crossinstall OS_TARGET=linux CPU_TARGET=m68k INSTALL_PREFIX=$(pwd)/../fpc  
+  - $(pwd)/../fpc/bin/fpcmkcfg -d basepath=$(pwd)/../fpc/lib/fpc/3.1.1 -d sharepath=$(pwd)/../fpc/lib/fpc/3.1.1 -o $(pwd)/../fpc/lib/fpc/3.1.1/fpc.cfg 
+  - cd $(pwd)/../fpc/lib/fpc/3.1.1  
   - echo "-Fu$(pwd)/units/m68k-linux" >> fpc.cfg 
   - echo "-Fu$(pwd)/units/m68k-linux/*" >> fpc.cfg 
   - echo "-Fu$(pwd)/units/m68k-linux/rtl" >> fpc.cfg 
-  - echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> /usr/local/run-qemu-m68k
-  - chmod +x /usr/local/run-qemu-m68k
-  - cd /usr/local/freepascal-freepascal/tests/
-  - PATH=/usr/local/binutils/bin:$PATH make clean full TEST_FPC=/usr/local/fpc/lib/fpc/3.1.1/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=/usr/local/run-qemu-m68k CHUNKSIZE=50 -j 1  
+  - cd ../../../..
+  - echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> run-qemu-m68k
+  - chmod +x run-qemu-m68k
+  - cd freepascal-freepascal/tests/
+  - PATH=$(pwd)/../../binutils/bin:$PATH make clean full TEST_FPC=$(pwd)/../../fpc/lib/fpc/3.1.1/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$(pwd)/../../run-qemu-m68k CHUNKSIZE=50 -j 2  
