@@ -1,6 +1,5 @@
 language: cpp
-dist: trusty
-sudo: enabled
+system: linux
 
 install:
   - sudo apt-get update -qq
@@ -12,8 +11,8 @@ install:
 
 script:  
   - echo "$(pwd)"
-  - echo "$(HOME)"
-  - echo "$(TRAVIS_BUILD_DIR)"
+  - echo "$HOME"
+  - echo "$TRAVIS_BUILD_DIR"
   - cd /usr/local
   - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2  
   - tar xvjf binutils-2.29.1.tar.bz2  
