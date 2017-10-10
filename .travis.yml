@@ -2,6 +2,7 @@ language: cpp
 system: linux
 
 install:
+  - sudo add-apt-repository ppa:fp-compiler -y
   - sudo apt-get update -qq
   - sudo apt-get install -y gcc-multilib  
   - sudo apt-get install -y build-essential  
@@ -11,8 +12,10 @@ install:
 
 script:  
   - cd ..
+  - echo 'Download binutils' && echo -e 'travis_fold:start:binutils\\r'
   - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2  
-  - tar xvjf binutils-2.29.1.tar.bz2  
+  - tar xvjf binutils-2.29.1.tar.bz2
+  - echo -en 'travis_fold:end:binutils\\r'  
   - cd binutils-2.29.1  
   - ./configure --target=m68k-elf --prefix=$(pwd)/../binutils  
   - make  
