@@ -3,6 +3,7 @@ dist: trusty
 sudo: required
 
 install:
+  - sudo -i
   - apt-get update -qq
   - apt-get install -y gcc-multilib  
   - apt-get install -y build-essential  
