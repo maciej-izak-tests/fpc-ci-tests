@@ -22,7 +22,7 @@ script:
   - cd ..
   - sudo wget https://github.com/newpascal/freepascal/archive/freepascal.zip  
   - sudo unzip freepascal.zip  
-  - sudo cd freepascal-freepascal  
+  - cd freepascal-freepascal  
   - sudo make all  
   - sudo make install INSTALL_PREFIX=/usr/local/fpc  
   - sudo PATH=/usr/local/binutils/bin:$PATH make all CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf-  
