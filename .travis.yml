@@ -1,9 +1,8 @@
 language: cpp
 dist: trusty
-sudo: required
+sudo: false
 
 install:
-  - sudo -i
   - apt-get update -qq
   - apt-get install -y gcc-multilib  
   - apt-get install -y build-essential  
