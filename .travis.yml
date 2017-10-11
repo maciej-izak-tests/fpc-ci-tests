@@ -3,17 +3,17 @@ system: linux
 
 install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y gcc-multilib  
-  - sudo apt-get install -y build-essential  
-  - sudo apt-get install -y qemu  
-  - sudo apt-get install -y unzip 
+  - sudo apt-get install -y gcc-multilib
+  - sudo apt-get install -y build-essential
+  - sudo apt-get install -y qemu
+  - sudo apt-get install -y unzip
 
 script:
 # initialization for basic variables
   - cd ..
   - main_dir=`pwd`
   - fpc_base_dir=$main_dir'/fpc/lib/fpc/3.1.1'
-  - PATH=$main_dir/binutils/bin:$PATH
+  - PATH=$main_dir/binutils/bin:$main_dir/fpc/bin:$fpc_base_dir:$PATH
   - bootstrap=FPC=$main_dir/bootstrap/ppcx64-linux
   - installprefix=INSTALL_PREFIX=$main_dir/fpc
 # download bootstrap compiler
@@ -21,30 +21,32 @@ script:
   - cd bootstrap
   - wget https://github.com/maciej-izak/fpc-ci-tests/releases/download/bootstrap/ppcx64-linux
   - chmod +x ppcx64-linux
-  - cd $main_dir  
-# download and build binutils  
-  - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2  
+  - cd $main_dir
+# download and build binutils
+  - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
   - tar xvjf binutils-2.29.1.tar.bz2
-  - cd binutils-2.29.1  
-  - ./configure --target=m68k-elf --prefix=$main_dir/binutils  
+  - cd binutils-2.29.1
+  - ./configure --target=m68k-elf --prefix=$main_dir/binutils
   - make  
   - make install
-  - cd $main_dir  
+  - cd $main_dir
 # download and build fpc
-  - wget https://github.com/newpascal/freepascal/archive/freepascal.zip  
-  - unzip freepascal.zip  
-  - cd freepascal-freepascal  
-  - make all install $bootstrap $installprefix 
-  - make all CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- $bootstrap
-  - make crossinstall $bootstrap $installprefix 
-  - $main_dir/fpc/bin/fpcmkcfg -d basepath=$fpc_base_dir -d sharepath=$fpc_base_dir -o $fpc_base_dir/fpc.cfg 
-  - cd $fpc_base_dir  
-  - echo "-Fu$fpc_base_dir/units/m68k-linux" >> fpc.cfg 
-  - echo "-Fu$fpc_base_dir/units/m68k-linux/*" >> fpc.cfg 
-  - echo "-Fu$fpc_base_dir/units/m68k-linux/rtl" >> fpc.cfg
-  - cd $main_dir  
+  - wget https://github.com/newpascal/freepascal/archive/freepascal.zip
+  - unzip freepascal.zip
+  - cd freepascal-freepascal
+  - make all $bootstrap
+  - make install $bootstrap $installprefix 
+  - chmod -R 777 $main_dir/fpc/bin
+  - sudo $fpc_base_dir/samplecfg $fpc_base_dir
+# build m68k target
+  - make clean $bootstrap
+  - make compiler_cycle CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcx64
+  - cp -f ./compiler/ppcross68k $fpc_base_dir
+  - make rtl packages CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- FPC=ppcross68k
+  - make rtl_install packages_install CROSSINSTALL=1 CPU_TARGET=m68k CROSSOPT="-O- -Cpisac" OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcross68k PREFIX=$main_dir/fpc
+  - cd $main_dir
 # test for m68k 
   - echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> run-qemu-m68k
   - chmod +x run-qemu-m68k
   - cd freepascal-freepascal/tests/
-  - make full $bootstrap TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2  
+  - make full TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2
