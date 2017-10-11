@@ -46,4 +46,4 @@ script:
   - echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> run-qemu-m68k
   - chmod +x run-qemu-m68k
   - cd freepascal-freepascal/tests/
-  - make full TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2  
+  - make full $bootstrap TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2  
