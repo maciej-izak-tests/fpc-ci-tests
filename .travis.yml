@@ -35,7 +35,8 @@ script:
   - unzip freepascal.zip  
   - cd freepascal-freepascal  
   - make all install $bootstrap $installprefix 
-  - make all crossinstall CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- $bootstrap $installprefix 
+  - make all CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- $bootstrap
+  - make crossinstall $bootstrap $installprefix 
   - $main_dir/fpc/bin/fpcmkcfg -d basepath=$fpc_base_dir -d sharepath=$fpc_base_dir -o $fpc_base_dir/fpc.cfg 
   - cd $fpc_base_dir  
   - echo "-Fu$fpc_base_dir/units/m68k-linux" >> fpc.cfg 
