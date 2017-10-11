@@ -7,6 +7,7 @@ install:
   - sudo apt-get install -y build-essential
   - sudo apt-get install -y qemu
   - sudo apt-get install -y unzip
+  - sudo apt-get install -y dosbox
 
 script:
 # initialization for basic variables
@@ -22,14 +23,14 @@ script:
   - wget https://github.com/maciej-izak/fpc-ci-tests/releases/download/bootstrap/ppcx64-linux
   - chmod +x ppcx64-linux
   - cd $main_dir
-# download and build binutils
-  - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
-  - tar xvjf binutils-2.29.1.tar.bz2
-  - cd binutils-2.29.1
-  - ./configure --target=m68k-elf --prefix=$main_dir/binutils
-  - make  
-  - make install
-  - cd $main_dir
+# download and build binutils for m68k
+  #- wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
+  #- tar xvjf binutils-2.29.1.tar.bz2
+  #- cd binutils-2.29.1
+  #- ./configure --target=m68k-elf --prefix=$main_dir/binutils
+  #- make  
+  #- make install
+  #- cd $main_dir
 # download and build fpc
   - wget https://github.com/newpascal/freepascal/archive/freepascal.zip
   - unzip freepascal.zip
@@ -39,14 +40,14 @@ script:
   - chmod -R 777 $main_dir/fpc/bin
   - sudo $fpc_base_dir/samplecfg $fpc_base_dir
 # build m68k target
-  - make clean $bootstrap
-  - make compiler_cycle CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcx64
-  - cp -f ./compiler/ppcross68k $fpc_base_dir
-  - make rtl packages CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- FPC=ppcross68k
-  - make rtl_install packages_install CROSSINSTALL=1 CPU_TARGET=m68k CROSSOPT="-O- -Cpisac" OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcross68k PREFIX=$main_dir/fpc
-  - cd $main_dir
+  #- make clean $bootstrap
+  #- make compiler_cycle CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcx64
+  #- cp -f ./compiler/ppcross68k $fpc_base_dir
+  #- make rtl packages CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- FPC=ppcross68k
+  #- make rtl_install packages_install CROSSINSTALL=1 CPU_TARGET=m68k CROSSOPT="-O- -Cpisac" OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcross68k PREFIX=$main_dir/fpc
+  #- cd $main_dir
 # test for m68k 
-  - echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> run-qemu-m68k
-  - chmod +x run-qemu-m68k
-  - cd freepascal-freepascal/tests/
-  - make full TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2
+  #- echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> run-qemu-m68k
+  #- chmod +x run-qemu-m68k
+  #- cd freepascal-freepascal/tests/
+  #- make full TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2
