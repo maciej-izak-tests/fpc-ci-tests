@@ -35,22 +35,22 @@ script:
   - tar xjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=m68k-elf --prefix=$main_dir/binutils
-  - make  
-  - make install
+  - make > /dev/null 
+  - make install > /dev/null
   - cd $main_dir
   - sudo rm -r -f binutils-2.29.1
   - tar xjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=i386-linux --prefix=$main_dir/binutils
-  - make  
-  - make install 
+  - make > /dev/null 
+  - make install > /dev/null
   - cd $main_dir
   - sudo rm -r -f binutils-2.29.1
   - tar xjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=avr --prefix=$main_dir/binutils
-  - make  
-  - make install 
+  - make > /dev/null  
+  - make install > /dev/null 
   - cd $main_dir
 # download and build fpc
   - wget https://github.com/newpascal/freepascal/archive/freepascal.zip
@@ -102,6 +102,7 @@ script:
   - export DOSBOX=/usr/bin/dosbox
   - export SDL_VIDEODRIVER=dummy
   - export SDL_AUDIODRIVER=dummy
+  - export DOSBOX_TIMEOUT=60
   - cd tests
   - make full TEST_FPC=ppcross8086 "TEST_OPT=-CX -XXs -WmMedium" EMULATOR=$main_dir/freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper
 # build m68k target
