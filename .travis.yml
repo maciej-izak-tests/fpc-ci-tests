@@ -106,7 +106,6 @@ script:
   - make full TEST_FPC=ppcross8086 "TEST_OPT=-CX -XXs -WmMedium" EMULATOR=$main_dir/freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper
 # build m68k target
   - cd $main_dir/freepascal-freepascal
-  - make clean $bootstrap
   - make compiler_cycle CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcx64
   - cp -f ./compiler/ppcross68k $fpc_base_dir
   - make rtl packages CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- FPC=ppcross68k
