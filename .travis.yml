@@ -2,12 +2,19 @@ language: cpp
 system: linux
 
 install:
+  - sudo dpkg --add-architecture i386
   - sudo apt-get update -qq
   - sudo apt-get install -y gcc-multilib
   - sudo apt-get install -y build-essential
+#  - sudo apt-get install -y cpp-6:i386
+#  - sudo apt-get install -y cpp:i386
+#  - sudo apt-get install -y gcc:i386
+#  - sudo apt-get install -y make:i386
+#  - sudo apt-get install -y dpkg-dev:i386
+#  - sudo apt-get install -y gcc-multilib:i386
   - sudo apt-get install -y qemu
   - sudo apt-get install -y unzip
-  - sudo apt-get install -y dosbox
+  - sudo apt-get install -y dosbox:i386
 
 script:
 # initialization for basic variables
@@ -31,33 +38,72 @@ script:
   - make  
   - make install
   - cd $main_dir
+  - rm -r binutils-2.29.1
+  - tar xvjf binutils-2.29.1.tar.bz2
+  - cd binutils-2.29.1
+  - ./configure --target=i386-linux --prefix=$main_dir/binutils
+  - make  
+  - make install 
+  - cd $main_dir
+  - rm -r binutils-2.29.1
+  - tar xvjf binutils-2.29.1.tar.bz2
+  - cd binutils-2.29.1
+  - ./configure --target=avr --prefix=$main_dir/binutils
+  - make  
+  - make install 
+  - cd $main_dir
 # download and build fpc
   - wget https://github.com/newpascal/freepascal/archive/freepascal.zip
   - unzip freepascal.zip
   - cd freepascal-freepascal
   - make all $bootstrap
   - make install $bootstrap $installprefix 
+  - make compiler_cycle CROSSINSTALL=1 "OS_TARGET=linux" "CPU_TARGET=i386"
+  - cp -f ./compiler/ppcross386 $fpc_base_dir 
+  - make rtl packages CROSSINSTALL=1 "OS_TARGET=linux" "CPU_TARGET=i386" FPC=ppcross386
+  - make rtl_install packages_install CROSSINSTALL=1  "OS_TARGET=linux" "CPU_TARGET=i386" FPC=ppcross386 PREFIX=$main_dir/fpc  
   - chmod -R 777 $main_dir/fpc/bin
   - sudo $fpc_base_dir/samplecfg $fpc_base_dir
+#tests for fpc 32/64
+  - cd tests
+  - make full TEST_FPC=ppcross386 "OS_TARGET=linux" "CPU_TARGET=i386" CHUNKSIZE=50 -j 1
+  - make full TEST_FPC=ppcx64 CHUNKSIZE=50 -j 2
   - cd $main_dir
-#build dos
+# build 8 bit AVR
+  - cd freepascal-freepascal
+  - make compiler_cycle CROSSINSTALL=1 "OS_TARGET=embedded" "CPU_TARGET=avr" "SUBARCH=avr5" FPC=ppcx64 BINUTILSPREFIX=avr- -j "OPT=-O3"
+  - cp -f ./compiler/ppcrossavr $fpc_base_dir 
+  - make rtl packages CROSSINSTALL=1  "OS_TARGET=embedded" "CPU_TARGET=avr" "SUBARCH=avr5" FPC=ppcrossavr BINUTILSPREFIX=avr- -j "OPT=-O3"
+  - make rtl_install packages_install CROSSINSTALL=1  "OS_TARGET=embedded" "CPU_TARGET=avr" "SUBARCH=avr5" "OPT=-O3" FPC=ppcrossavr PREFIX=$main_dir/fpc
+# avr test
+  - cd $main_dir
+  - wget https://github.com/FPK/fp-avrsim/archive/master.zip
+  - unzip master.zip
+  #- fpc -Pi386 -Tlinux -XPi386-linux- fp-avrsim-master/avrsim.lpr
+  - fpc fp-avrsim-master/avrsim.lpr -O4
+  - echo "timeout -k 2s 60s $main_dir/fp-avrsim-master/avrsim "'$@' >> run-avr
+  - chmod +x run-avr
+  - cd $main_dir/freepascal-freepascal/tests/
+  - make full FPCFPMAKE=ppcross386 TEST_FPC=ppcrossavr V=1 "TEST_SUBARCH=avr5" "TEST_OPT=-O4 -al -XPavr- -Wpavrsim" EMULATOR=$main_dir/run-avr
+# build dos
+  - cd $main_dir
   - wget https://github.com/newpascal/fpcupdeluxe/releases/download/linuxx64crossbins_v1.0/CrossBinsMSDosi8086.zip
   - unzip CrossBinsMSDosi8086.zip -d binutils/bin
   - cd $main_dir/binutils/bin
-  - mv nasm msdos-nasm 
+  - cp nasm msdos-nasm 
+  - chmod -R 777 $main_dir/binutils/bin
   - cd $main_dir/freepascal-freepascal
-  - make clean $bootstrap
   - make compiler_cycle CROSSINSTALL=1 CPU_TARGET=i8086 OS_TARGET=msdos FPC=ppcx64 "OPT=-CX -XXs" CROSSOPT="-WmMedium"
   - cp -f ./compiler/ppcross8086 $fpc_base_dir
   - make rtl packages CROSSINSTALL=1 "OPT=-CX -XXs" "OS_TARGET=msdos" "CPU_TARGET=i8086" CROSSOPT="-WmMedium" FPC=ppcross8086
   - make rtl_install packages_install CROSSINSTALL=1 CPU_TARGET=i8086 "OPT=-CX -XXs" CROSSOPT="-WmMedium" OS_TARGET=msdos FPC=ppcross8086 PREFIX=$main_dir/fpc
 # test for dos 
   - fpc tests/utils/dosbox/dosbox_wrapper.pas
-  - DOSBOX=/usr/bin/dosbox
+  - export DOSBOX=/usr/bin/dosbox
+  - export SDL_VIDEODRIVER=dummy
+  - export SDL_AUDIODRIVER=dummy
   - cd tests
-  - ulimit -m 256000
-  - ulimit -d 256000
-  - make full TEST_FPC=ppcross8086 TEST_OPT=-WmMedium EMULATOR=$main_dir/freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper
+  - make full TEST_FPC=ppcross8086 "TEST_OPT=-CX -XXs -WmMedium" EMULATOR=$main_dir/freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper
 # build m68k target
   - cd $main_dir/freepascal-freepascal
   - make clean $bootstrap
