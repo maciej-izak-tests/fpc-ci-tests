@@ -38,14 +38,14 @@ script:
   - make  
   - make install
   - cd $main_dir
-  - rm -r binutils-2.29.1
+  - sudo rm -r -f binutils-2.29.1
   - tar xvjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=i386-linux --prefix=$main_dir/binutils
   - make  
   - make install 
   - cd $main_dir
-  - rm -r binutils-2.29.1
+  - sudo rm -r -f binutils-2.29.1
   - tar xvjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=avr --prefix=$main_dir/binutils
