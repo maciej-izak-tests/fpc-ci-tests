@@ -32,21 +32,21 @@ script:
   - cd $main_dir
 # download and build binutils for m68k
   - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
-  - tar xvjf binutils-2.29.1.tar.bz2
+  - tar xjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=m68k-elf --prefix=$main_dir/binutils
   - make  
   - make install
   - cd $main_dir
   - sudo rm -r -f binutils-2.29.1
-  - tar xvjf binutils-2.29.1.tar.bz2
+  - tar xjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=i386-linux --prefix=$main_dir/binutils
   - make  
   - make install 
   - cd $main_dir
   - sudo rm -r -f binutils-2.29.1
-  - tar xvjf binutils-2.29.1.tar.bz2
+  - tar xjf binutils-2.29.1.tar.bz2
   - cd binutils-2.29.1
   - ./configure --target=avr --prefix=$main_dir/binutils
   - make  
@@ -54,7 +54,7 @@ script:
   - cd $main_dir
 # download and build fpc
   - wget https://github.com/newpascal/freepascal/archive/freepascal.zip
-  - unzip freepascal.zip
+  - unzip -qq freepascal.zip
   - cd freepascal-freepascal
   - make all $bootstrap
   - make install $bootstrap $installprefix 
@@ -78,7 +78,7 @@ script:
 # avr test
   - cd $main_dir
   - wget https://github.com/FPK/fp-avrsim/archive/master.zip
-  - unzip master.zip
+  - unzip -qq master.zip
   #- fpc -Pi386 -Tlinux -XPi386-linux- fp-avrsim-master/avrsim.lpr
   - fpc fp-avrsim-master/avrsim.lpr -O4
   - echo "timeout -k 2s 60s $main_dir/fp-avrsim-master/avrsim "'$@' >> run-avr
@@ -88,7 +88,7 @@ script:
 # build dos
   - cd $main_dir
   - wget https://github.com/newpascal/fpcupdeluxe/releases/download/linuxx64crossbins_v1.0/CrossBinsMSDosi8086.zip
-  - unzip CrossBinsMSDosi8086.zip -d binutils/bin
+  - unzip -qq CrossBinsMSDosi8086.zip -d binutils/bin
   - cd $main_dir/binutils/bin
   - cp nasm msdos-nasm 
   - chmod -R 777 $main_dir/binutils/bin
