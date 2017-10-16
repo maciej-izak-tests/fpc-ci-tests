@@ -1,24 +1,28 @@
 language: cpp
 system: linux
 
+env:
+  global:
+    main_dir=~
+  matrix:
+    CPU_TARGET=i386
+    CPU_TARGET=x64
+    CPU_TARGET=avr
+    CPU_TARGET=i8086
+    CPU_TARGET=m68k
+
 install:
-  - sudo dpkg --add-architecture i386
+  - if [ $CPU_TARGET = i8086 ]; then sudo dpkg --add-architecture i386; fi
   - sudo apt-get update -qq
   - sudo apt-get install -y gcc-multilib
   - sudo apt-get install -y build-essential
-#  - sudo apt-get install -y cpp-6:i386
-#  - sudo apt-get install -y cpp:i386
-#  - sudo apt-get install -y gcc:i386
-#  - sudo apt-get install -y make:i386
-#  - sudo apt-get install -y dpkg-dev:i386
-#  - sudo apt-get install -y gcc-multilib:i386
-  - sudo apt-get install -y qemu
   - sudo apt-get install -y unzip
-  - sudo apt-get install -y dosbox:i386
+  - if [ $CPU_TARGET = m68k ]; then sudo apt-get install -y qemu; fi
+  - if [ $CPU_TARGET = i8086 ]; then sudo apt-get install -y dosbox:i386; fi
 
 script:
 # initialization for basic variables
-  - cd ..
+  - cd $main_dir
   - main_dir=`pwd`
   - fpc_base_dir=$main_dir'/fpc/lib/fpc/3.1.1'
   - PATH=$main_dir/binutils/bin:$main_dir/fpc/bin:$fpc_base_dir:$PATH
