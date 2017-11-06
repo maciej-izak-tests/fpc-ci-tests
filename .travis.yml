@@ -7,7 +7,6 @@ system: linux
 
 env:
   global:
-    - main_dir=~
     # number of CPU cores
     - J=2
 
@@ -52,7 +51,7 @@ install:
 
 script:
 # initialization for basic variables
-  - cd $main_dir
+  - export main_dir=`pwd`
   - export fpc_base_dir=$main_dir'/fpc/lib/fpc/3.1.1'
   - export PATH=$main_dir/binutils/bin:$main_dir/fpc/bin:$fpc_base_dir:$PATH
   - export bootstrap=FPC=$main_dir/bootstrap/ppcx64-linux
