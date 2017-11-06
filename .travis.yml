@@ -1,123 +1,86 @@
+# This file is part of the Free Pascal CI system.
+# Copyright (c) 2017 by Maciej Izak
+# member of the Free Pascal development team
+
 language: cpp
 system: linux
 
 env:
   global:
-    main_dir=~
-  matrix:
-    CPU_TARGET=i386
-    CPU_TARGET=x64
-    CPU_TARGET=avr
-    CPU_TARGET=i8086
-    CPU_TARGET=m68k
+    - main_dir=~
+    # number of CPU cores
+    - J=2
+
+matrix:
+  include:
+    - env:
+        - CPUTARGET=i386
+        - TEST_MAIN_PARAMS="('full')"
+    - env:
+        - CPUTARGET=x86_64
+        - TEST_MAIN_PARAMS="('full')"
+    - env:
+        - CPUTARGET=avr
+        - TEST_MAIN_PARAMS="('full')"
+    - env:
+        - CPUTARGET=m68k
+        - TEST_MAIN_PARAMS="('full')"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="('allexectbs' 'SINGLEDOTESTRUNS=1')"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="('allexectbf' 'SINGLEDOTESTRUNS=1')"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="('allexecwebtbs' 'SINGLEDOTESTRUNS=1')"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="('allexecwebtbf' 'SINGLEDOTESTRUNS=1')"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="('allexectest' 'SINGLEDOTESTRUNS=1')"
 
 install:
-  - if [ $CPU_TARGET = i8086 ]; then sudo dpkg --add-architecture i386; fi
+  - if [ $CPUTARGET = i8086 ]; then sudo dpkg --add-architecture i386; fi
   - sudo apt-get update -qq
   - sudo apt-get install -y gcc-multilib
   - sudo apt-get install -y build-essential
   - sudo apt-get install -y unzip
-  - if [ $CPU_TARGET = m68k ]; then sudo apt-get install -y qemu; fi
-  - if [ $CPU_TARGET = i8086 ]; then sudo apt-get install -y dosbox:i386; fi
+  - if [ $CPUTARGET = m68k ]; then sudo apt-get install -y qemu; fi
+  - if [ $CPUTARGET = i8086 ]; then sudo apt-get install -y dosbox:i386; fi
 
 script:
 # initialization for basic variables
   - cd $main_dir
-  - main_dir=`pwd`
-  - fpc_base_dir=$main_dir'/fpc/lib/fpc/3.1.1'
-  - PATH=$main_dir/binutils/bin:$main_dir/fpc/bin:$fpc_base_dir:$PATH
-  - bootstrap=FPC=$main_dir/bootstrap/ppcx64-linux
-  - installprefix=INSTALL_PREFIX=$main_dir/fpc
+  - export fpc_base_dir=$main_dir'/fpc/lib/fpc/3.1.1'
+  - export PATH=$main_dir/binutils/bin:$main_dir/fpc/bin:$fpc_base_dir:$PATH
+  - export bootstrap=FPC=$main_dir/bootstrap/ppcx64-linux
+  - export installprefix=INSTALL_PREFIX=$main_dir/fpc
 # download bootstrap compiler
   - mkdir bootstrap
   - cd bootstrap
   - wget https://github.com/maciej-izak/fpc-ci-tests/releases/download/bootstrap/ppcx64-linux
-  - chmod +x ppcx64-linux
+  - chmod ugo+x ppcx64-linux
   - cd $main_dir
-# download and build binutils for m68k
-  - wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
-  - tar xjf binutils-2.29.1.tar.bz2
-  - cd binutils-2.29.1
-  - ./configure --target=m68k-elf --prefix=$main_dir/binutils
-  - make > /dev/null 
-  - make install > /dev/null
-  - cd $main_dir
-  - sudo rm -r -f binutils-2.29.1
-  - tar xjf binutils-2.29.1.tar.bz2
-  - cd binutils-2.29.1
-  - ./configure --target=i386-linux --prefix=$main_dir/binutils
-  - make > /dev/null 
-  - make install > /dev/null
-  - cd $main_dir
-  - sudo rm -r -f binutils-2.29.1
-  - tar xjf binutils-2.29.1.tar.bz2
-  - cd binutils-2.29.1
-  - ./configure --target=avr --prefix=$main_dir/binutils
-  - make > /dev/null  
-  - make install > /dev/null 
-  - cd $main_dir
+# script with basic variables
+  - chmod ugo+x fpcvariables.sh
+# download and build binutils for some targets
+  - chmod ugo+x binutils.sh
+  - ./binutils.sh
 # download and build fpc
-  - wget https://github.com/newpascal/freepascal/archive/freepascal.zip
-  - unzip -qq freepascal.zip
-  - cd freepascal-freepascal
-  - make all $bootstrap
-  - make install $bootstrap $installprefix 
-  - make compiler_cycle CROSSINSTALL=1 "OS_TARGET=linux" "CPU_TARGET=i386"
-  - cp -f ./compiler/ppcross386 $fpc_base_dir 
-  - make rtl packages CROSSINSTALL=1 "OS_TARGET=linux" "CPU_TARGET=i386" FPC=ppcross386
-  - make rtl_install packages_install CROSSINSTALL=1  "OS_TARGET=linux" "CPU_TARGET=i386" FPC=ppcross386 PREFIX=$main_dir/fpc  
-  - chmod -R 777 $main_dir/fpc/bin
-  - sudo $fpc_base_dir/samplecfg $fpc_base_dir
-#tests for fpc 32/64
-  - cd tests
-  - make full TEST_FPC=ppcross386 "OS_TARGET=linux" "CPU_TARGET=i386" CHUNKSIZE=50 -j 1
-  - make full TEST_FPC=ppcx64 CHUNKSIZE=50 -j 2
-  - cd $main_dir
-# build 8 bit AVR
-  - cd freepascal-freepascal
-  - make compiler_cycle CROSSINSTALL=1 "OS_TARGET=embedded" "CPU_TARGET=avr" "SUBARCH=avr5" FPC=ppcx64 BINUTILSPREFIX=avr- -j "OPT=-O3"
-  - cp -f ./compiler/ppcrossavr $fpc_base_dir 
-  - make rtl packages CROSSINSTALL=1  "OS_TARGET=embedded" "CPU_TARGET=avr" "SUBARCH=avr5" FPC=ppcrossavr BINUTILSPREFIX=avr- -j "OPT=-O3"
-  - make rtl_install packages_install CROSSINSTALL=1  "OS_TARGET=embedded" "CPU_TARGET=avr" "SUBARCH=avr5" "OPT=-O3" FPC=ppcrossavr PREFIX=$main_dir/fpc
-# avr test
-  - cd $main_dir
-  - wget https://github.com/FPK/fp-avrsim/archive/master.zip
-  - unzip -qq master.zip
-  #- fpc -Pi386 -Tlinux -XPi386-linux- fp-avrsim-master/avrsim.lpr
-  - fpc fp-avrsim-master/avrsim.lpr -O4
-  - echo "timeout -k 2s 60s $main_dir/fp-avrsim-master/avrsim "'$@' >> run-avr
-  - chmod +x run-avr
-  - cd $main_dir/freepascal-freepascal/tests/
-  - make full FPCFPMAKE=ppcross386 TEST_FPC=ppcrossavr V=1 "TEST_SUBARCH=avr5" "TEST_OPT=-O4 -al -XPavr- -Wpavrsim" EMULATOR=$main_dir/run-avr
-# build dos
-  - cd $main_dir
-  - wget https://github.com/newpascal/fpcupdeluxe/releases/download/linuxx64crossbins_v1.0/CrossBinsMSDosi8086.zip
-  - unzip -qq CrossBinsMSDosi8086.zip -d binutils/bin
-  - cd $main_dir/binutils/bin
-  - cp nasm msdos-nasm 
-  - chmod -R 777 $main_dir/binutils/bin
-  - cd $main_dir/freepascal-freepascal
-  - make compiler_cycle CROSSINSTALL=1 CPU_TARGET=i8086 OS_TARGET=msdos FPC=ppcx64 "OPT=-CX -XXs" CROSSOPT="-WmMedium"
-  - cp -f ./compiler/ppcross8086 $fpc_base_dir
-  - make rtl packages CROSSINSTALL=1 "OPT=-CX -XXs" "OS_TARGET=msdos" "CPU_TARGET=i8086" CROSSOPT="-WmMedium" FPC=ppcross8086
-  - make rtl_install packages_install CROSSINSTALL=1 CPU_TARGET=i8086 "OPT=-CX -XXs" CROSSOPT="-WmMedium" OS_TARGET=msdos FPC=ppcross8086 PREFIX=$main_dir/fpc
-# test for dos 
-  - fpc tests/utils/dosbox/dosbox_wrapper.pas
-  - export DOSBOX=/usr/bin/dosbox
-  - export SDL_VIDEODRIVER=dummy
-  - export SDL_AUDIODRIVER=dummy
-  - export DOSBOX_TIMEOUT=60
-  - cd tests
-  - make full TEST_FPC=ppcross8086 "TEST_OPT=-CX -XXs -WmMedium" EMULATOR=$main_dir/freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper
-# build m68k target
-  - cd $main_dir/freepascal-freepascal
-  - make compiler_cycle CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcx64
-  - cp -f ./compiler/ppcross68k $fpc_base_dir
-  - make rtl packages CROSSINSTALL=1 CPU_TARGET=m68k OS_TARGET=linux CROSSOPT="-O- -Cpisac" BINUTILSPREFIX=m68k-elf- FPC=ppcross68k
-  - make rtl_install packages_install CROSSINSTALL=1 CPU_TARGET=m68k CROSSOPT="-O- -Cpisac" OS_TARGET=linux BINUTILSPREFIX=m68k-elf- FPC=ppcross68k PREFIX=$main_dir/fpc
-  - cd $main_dir
-# test for m68k 
-  - echo 'timeout -k 2s 60s qemu-m68k -cpu cfv4e $@' >> run-qemu-m68k
-  - chmod +x run-qemu-m68k
-  - cd freepascal-freepascal/tests/
-  - make full TEST_FPC=$fpc_base_dir/ppcross68k TEST_OPT="-O- -Cpisac -XPm68k-elf-" EMULATOR=$main_dir/run-qemu-m68k CHUNKSIZE=50 -j 2
+  - chmod ugo+x buildfpctrunk.sh
+  - ./buildfpctrunk.sh
+# build selected ppcross
+  - chmod ugo+x buildfpccrosstrunk.sh
+  - ./buildfpccrosstrunk.sh
+# tests
+  - chmod ugo+x testfpc.sh
+  - ./testfpc.sh
+# possible results output/ 
+# x86_64-linux : i386-linux : m68k-linux : msdos : avr-embedded
+# normal test : faillist, log, longlog
+# dos has result in 3 files (each matrix), for example for allexectbs
+# faillist.tbslog
+# log.tbslog
+# longlog.tbslog
