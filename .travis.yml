@@ -12,71 +12,85 @@ env:
 
 matrix:
   include:
-    - env:
-        - CPUTARGET=i386
-        - TEST_MAIN_PARAMS="full"
-    - env:
-        - CPUTARGET=x86_64
-        - TEST_MAIN_PARAMS="full"
-    - env:
-        - CPUTARGET=avr
-        - TEST_MAIN_PARAMS="full"
-    - env:
-        - CPUTARGET=m68k
-        - TEST_MAIN_PARAMS="full"
-    - env:
-        - CPUTARGET=i8086
-        - TEST_MAIN_PARAMS="allexectbs SINGLEDOTESTRUNS=1"
+#    - env:
+#        - CPUTARGET=i386
+#        - TEST_MAIN_PARAMS="full"
+#        - TESTS_SUFFIX="full"
+#    - env:
+#        - CPUTARGET=x86_64
+#        - TEST_MAIN_PARAMS="full"
+#        - TESTS_SUFFIX="full"
+#    - env:
+#        - CPUTARGET=avr
+#        - TEST_MAIN_PARAMS="full"
+#        - TESTS_SUFFIX="full"
+#    - env:
+#        - CPUTARGET=m68k
+#        - TEST_MAIN_PARAMS="full"
+#        - TESTS_SUFFIX="full"
+#    - env:
+#        - CPUTARGET=i8086
+#        - TEST_MAIN_PARAMS="allexectbs SINGLEDOTESTRUNS=1"
+#        - TESTS_SUFFIX="tbs"
     - env:
         - CPUTARGET=i8086
         - TEST_MAIN_PARAMS="allexectbf SINGLEDOTESTRUNS=1"
-    - env:
-        - CPUTARGET=i8086
-        - TEST_MAIN_PARAMS="allexecwebtbs SINGLEDOTESTRUNS=1"
-    - env:
-        - CPUTARGET=i8086
-        - TEST_MAIN_PARAMS="allexecwebtbf SINGLEDOTESTRUNS=1"
-    - env:
-        - CPUTARGET=i8086
-        - TEST_MAIN_PARAMS="allexectest SINGLEDOTESTRUNS=1"
+        - TESTS_SUFFIX="tbf"
+#    - env:
+#        - CPUTARGET=i8086
+#        - TEST_MAIN_PARAMS="allexecwebtbs SINGLEDOTESTRUNS=1"
+#        - TESTS_SUFFIX="webtbs"
+#    - env:
+#        - CPUTARGET=i8086
+#        - TEST_MAIN_PARAMS="allexecwebtbf SINGLEDOTESTRUNS=1"
+#        - TESTS_SUFFIX="webtbf"
+#    - env:
+#        - CPUTARGET=i8086
+#        - TEST_MAIN_PARAMS="allexectest SINGLEDOTESTRUNS=1"
+#        - TESTS_SUFFIX="test"
 
 install:
   - if [ $CPUTARGET = i8086 ]; then sudo dpkg --add-architecture i386; fi
   - sudo apt-get update -qq
   - sudo apt-get install -y gcc-multilib
   - sudo apt-get install -y build-essential
+  - sudo apt-get install -y zip
   - sudo apt-get install -y unzip
   - if [ $CPUTARGET = m68k ]; then sudo apt-get install -y qemu; fi
   - if [ $CPUTARGET = i8086 ]; then sudo apt-get install -y dosbox:i386; fi
 
 script:
+# download bootstrap compiler and additionall tools
+  - chmod ugo+x tools.sh
+  - ./tools.sh
 # initialization for basic variables
-  - export TEST_MAIN_PARAMS=($TEST_MAIN_PARAMS)
-  - export main_dir=`pwd`
-  - export fpc_base_dir=$main_dir'/fpc/lib/fpc/3.1.1'
-  - export PATH=$main_dir/binutils/bin:$main_dir/fpc/bin:$fpc_base_dir:$PATH
-  - export bootstrap=FPC=$main_dir/bootstrap/ppcx64-linux
-  - export installprefix=INSTALL_PREFIX=$main_dir/fpc
-# download bootstrap compiler
-  - mkdir bootstrap
-  - cd bootstrap
-  - wget https://github.com/maciej-izak/fpc-ci-tests/releases/download/bootstrap/ppcx64-linux
-  - chmod ugo+x ppcx64-linux
-  - cd $main_dir
+  - chmod ugo+x bashvariables.sh
+  - . ./bashvariables.sh
 # script with basic variables
   - chmod ugo+x fpcvariables.sh
+  - . ./fpcvariables.sh
 # download and build binutils for some targets
   - chmod ugo+x binutils.sh
   - ./binutils.sh
 # download and build fpc
-  - chmod ugo+x buildfpctrunk.sh
-  - ./buildfpctrunk.sh
+  - chmod ugo+x buildfpc.sh
+  - ./buildfpc.sh
 # build selected ppcross
-  - chmod ugo+x buildfpccrosstrunk.sh
-  - ./buildfpccrosstrunk.sh
+  - chmod ugo+x buildfpccross.sh
+  - ./buildfpccross.sh
 # tests
   - chmod ugo+x testfpc.sh
   - ./testfpc.sh
+  - export TRAVIS_TAG=$fpcsrc
+
+deploy:
+  provider: releases
+  overwrite: true
+  api_key:
+    secure: "tU3hcSm7e39rbyQFwYt3MT1mqesDfdn2KueqhPeLSAl7+grIpZ62VsEJhvKGL537rtysBTRQ29u9dCAyHM9UDwjc4taa7Ok8AEFNRUmWOkmqTFlr79iaJ83GnmuLgePkdbF4MLDse4uKSkq4VNzcNHZur0A2Svb9TAeXUME0QhKPOOLgpwT49FawawGvEjVYTSYIIsL83n1RbQKaRJIDvf2QamBQHcEp6YgTkDFUVWHoKdstWwmSbz9ajWoKMqJwFD1LQLNxgOnEDTw9kql0wOZBpoOQEAVcr9uKzWWbRqR1BGRkC8Q1XvnouUBn7IjAeVj+q6F9hKTd3JBbHMJjWJd6jxIhb60gmWdPiO4Q1EOhCTKqU38BZLwXFkcLDU2iuwy4EodKwFiZ8av6TvYcApe7tIzqLHm7wE1LQBFt12uPItiWpQc7Rt3yaJ4/8XhO8ZUkKmHGRAXchVG1UtLuYQSPflL3yIV2eivc+2zE/5LprMH6K08RpKa+rroPqtve7FNCh/DA+X1fgzoWxRBhvHsJdM+YqTgiafsrVX9WcLStNmlnZzK2HZizQq9rhI4yS9zxBFhT0PcG42tjoH+aXB2WckWcwnIGN9LNsMR6+qqY1twdwAd/4MVW7zD9vqU0LAuTNb7kmzPktnYCV8Bf6QJx6gszprxP612zzY9oFYQ="
+  file: ${TESTS_DIR}-${TESTS_SUFFIX}.zip
+  skip_cleanup: true
+
 # possible results output/ 
 # x86_64-linux : i386-linux : m68k-linux : msdos : avr-embedded
 # normal test : faillist, log, longlog

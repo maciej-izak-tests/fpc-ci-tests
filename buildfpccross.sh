@@ -5,12 +5,10 @@
 
 set -ev
 
-. ./fpcvariables.sh
-
 # build cross compiler
 if [ "$HAS_CROSS" = true ] ;
 then
-    cd freepascal-freepascal
+    cd $fpcsrc
 
     BASE_PARAMS=("CROSSINSTALL=1")
     if ! test -z "$_OS_TARGET"; then BASE_PARAMS+=("\"OS_TARGET=$_OS_TARGET\""); fi

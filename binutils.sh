@@ -20,8 +20,6 @@ case $CPUTARGET in
         mkdir -p $main_dir/binutils/bin
         wget https://github.com/newpascal/fpcupdeluxe/releases/download/linuxx64crossbins_v1.0/CrossBinsMSDosi8086.zip
         unzip -qq CrossBinsMSDosi8086.zip -d binutils/bin
-        cd $main_dir/binutils/bin
-        cp nasm msdos-nasm
         chmod -R 777 $main_dir/binutils/bin 
         exit 0
         ;;
@@ -29,9 +27,9 @@ case $CPUTARGET in
         exit 0
 esac
 
-wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.bz2
-tar xjf binutils-2.29.1.tar.bz2
-cd binutils-2.29.1
+wget ftp://ftp.gnu.org/gnu/binutils/binutils-$binutils_ver.tar.bz2
+tar xjf binutils-$binutils_ver.tar.bz2
+cd binutils-$binutils_ver
 ./configure --target=$TARGET --prefix=$main_dir/binutils
 make > /dev/null 
 make install > /dev/null

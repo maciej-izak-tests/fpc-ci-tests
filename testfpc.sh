@@ -5,8 +5,6 @@
 
 set -ev
 
-. ./fpcvariables.sh
-
 # special steps for tests for some CPU_TARGETS
 case $CPUTARGET in
     avr)
@@ -17,7 +15,7 @@ case $CPUTARGET in
         chmod ugo+x run-avr
         ;;
     i8086)
-        fpc freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper.pas
+        fpc $fpcsrc/tests/utils/dosbox/dosbox_wrapper.pas
         export DOSBOX=/usr/bin/dosbox
         export SDL_VIDEODRIVER=dummy
         export SDL_AUDIODRIVER=dummy
@@ -29,7 +27,7 @@ case $CPUTARGET in
         ;;
 esac
 
-cd $main_dir/freepascal-freepascal/tests/
+cd $main_dir/$fpcsrc/tests/
 
 # TODO? : FPCFPMAKE=ppcross386 , V=1
 
@@ -47,3 +45,6 @@ then
 else
     eval make ${PARAMS[@]}
 fi
+
+cd $main_dir/$fpcsrc/tests/output/$TESTS_DIR/
+zip $main_dir/$TESTS_DIR-$TESTS_SUFFIX.zip faillist* log* longlog*

@@ -20,6 +20,7 @@ case $CPUTARGET in
         _EMULATOR=
         HAS_CROSS=true
         HAS_TESTCHUNK=true
+        TESTS_DIR=i386-linux
         ;;
     x86_64)
         _OS_TARGET=
@@ -35,6 +36,7 @@ case $CPUTARGET in
         _EMULATOR=
         HAS_CROSS=false
         HAS_TESTCHUNK=true
+        TESTS_DIR=x86_64-linux
         ;;
     avr)
         _OS_TARGET=embedded
@@ -50,6 +52,7 @@ case $CPUTARGET in
         _EMULATOR=$main_dir/run-avr
         HAS_CROSS=true
         HAS_TESTCHUNK=true
+        TESTS_DIR=avr-embedded
         ;;
     i8086)
         _OS_TARGET=msdos
@@ -57,14 +60,15 @@ case $CPUTARGET in
         _SUBARCH=
         _PPCROSS=ppcross8086
         _BINUTILSPREFIX=
-        _OPT="-CX -XXs"
+        _OPT="-CX -XX -XP -XXs"
         _CROSSOPT="-WmMedium"
-        _TEST_OPT="-CX -XXs -WmMedium"
+        _TEST_OPT="-CX -XX -XP -XXs -WmMedium"
         _TEST_FPC="$_PPCROSS"
         _TEST_SUBARCH=
-        _EMULATOR=$main_dir/freepascal-freepascal/tests/utils/dosbox/dosbox_wrapper
+        _EMULATOR=$main_dir/$fpcsrc/tests/utils/dosbox/dosbox_wrapper
         HAS_CROSS=true
         HAS_TESTCHUNK=false
+        TESTS_DIR=msdos
         ;;
     m68k)
         _OS_TARGET=linux
@@ -80,6 +84,7 @@ case $CPUTARGET in
         _EMULATOR=$main_dir/run-qemu-m68k
         HAS_CROSS=true
         HAS_TESTCHUNK=true
+        TESTS_DIR=m68k-linux
         ;;
     *)
         exit 1
