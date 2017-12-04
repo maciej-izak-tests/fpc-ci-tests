@@ -61,7 +61,7 @@ case $CPUTARGET in
         export _PPCROSS=ppcross8086
         export _BINUTILSPREFIX=
         export _OPT="-CX -XX -XP -XXs"
-        export _CROSSOPT="-WmMedium"
+        export _CROSSOPT="-CX -XX -XP -WmMedium"
         export _TEST_OPT="-CX -XX -XP -XXs -WmMedium"
         export _TEST_FPC="$_PPCROSS"
         export _TEST_SUBARCH=
