@@ -12,42 +12,42 @@ env:
 
 matrix:
   include:
-#    - env:
-#        - CPUTARGET=i386
-#        - TEST_MAIN_PARAMS="full"
-#        - TESTS_SUFFIX="full"
-#    - env:
-#        - CPUTARGET=x86_64
-#        - TEST_MAIN_PARAMS="full"
-#        - TESTS_SUFFIX="full"
-#    - env:
-#        - CPUTARGET=avr
-#        - TEST_MAIN_PARAMS="full"
-#        - TESTS_SUFFIX="full"
-#    - env:
-#        - CPUTARGET=m68k
-#        - TEST_MAIN_PARAMS="full"
-#        - TESTS_SUFFIX="full"
-#    - env:
-#        - CPUTARGET=i8086
-#        - TEST_MAIN_PARAMS="allexectbs SINGLEDOTESTRUNS=1"
-#        - TESTS_SUFFIX="tbs"
+    - env:
+        - CPUTARGET=i386
+        - TEST_MAIN_PARAMS="full"
+        - TESTS_SUFFIX="full"
+    - env:
+        - CPUTARGET=x86_64
+        - TEST_MAIN_PARAMS="full"
+        - TESTS_SUFFIX="full"
+    - env:
+        - CPUTARGET=avr
+        - TEST_MAIN_PARAMS="full"
+        - TESTS_SUFFIX="full"
+    - env:
+        - CPUTARGET=m68k
+        - TEST_MAIN_PARAMS="full"
+        - TESTS_SUFFIX="full"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="allexectbs SINGLEDOTESTRUNS=1"
+        - TESTS_SUFFIX="tbs"
     - env:
         - CPUTARGET=i8086
         - TEST_MAIN_PARAMS="allexectbf SINGLEDOTESTRUNS=1"
         - TESTS_SUFFIX="tbf"
-#    - env:
-#        - CPUTARGET=i8086
-#        - TEST_MAIN_PARAMS="allexecwebtbs SINGLEDOTESTRUNS=1"
-#        - TESTS_SUFFIX="webtbs"
-#    - env:
-#        - CPUTARGET=i8086
-#        - TEST_MAIN_PARAMS="allexecwebtbf SINGLEDOTESTRUNS=1"
-#        - TESTS_SUFFIX="webtbf"
-#    - env:
-#        - CPUTARGET=i8086
-#        - TEST_MAIN_PARAMS="allexectest SINGLEDOTESTRUNS=1"
-#        - TESTS_SUFFIX="test"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="allexecwebtbs SINGLEDOTESTRUNS=1"
+        - TESTS_SUFFIX="webtbs"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="allexecwebtbf SINGLEDOTESTRUNS=1"
+        - TESTS_SUFFIX="webtbf"
+    - env:
+        - CPUTARGET=i8086
+        - TEST_MAIN_PARAMS="allexectest SINGLEDOTESTRUNS=1"
+        - TESTS_SUFFIX="test"
 
 install:
   - if [ $CPUTARGET = i8086 ]; then sudo dpkg --add-architecture i386; fi
