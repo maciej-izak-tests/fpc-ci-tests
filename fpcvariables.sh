@@ -41,7 +41,7 @@ case $CPUTARGET in
     avr)
         export _OS_TARGET=embedded
         export _CPU_TARGET=avr
-        export _SUBARCH=avr5
+        export _SUBARCH=avr6
         export _PPCROSS=ppcrossavr
         export _BINUTILSPREFIX=avr-
         export _OPT=-O3
