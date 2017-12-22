@@ -4,6 +4,7 @@
 
 language: cpp
 system: linux
+if: tag IS blank
 
 env:
   global:
