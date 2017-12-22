@@ -90,6 +90,8 @@ deploy:
     secure: "tU3hcSm7e39rbyQFwYt3MT1mqesDfdn2KueqhPeLSAl7+grIpZ62VsEJhvKGL537rtysBTRQ29u9dCAyHM9UDwjc4taa7Ok8AEFNRUmWOkmqTFlr79iaJ83GnmuLgePkdbF4MLDse4uKSkq4VNzcNHZur0A2Svb9TAeXUME0QhKPOOLgpwT49FawawGvEjVYTSYIIsL83n1RbQKaRJIDvf2QamBQHcEp6YgTkDFUVWHoKdstWwmSbz9ajWoKMqJwFD1LQLNxgOnEDTw9kql0wOZBpoOQEAVcr9uKzWWbRqR1BGRkC8Q1XvnouUBn7IjAeVj+q6F9hKTd3JBbHMJjWJd6jxIhb60gmWdPiO4Q1EOhCTKqU38BZLwXFkcLDU2iuwy4EodKwFiZ8av6TvYcApe7tIzqLHm7wE1LQBFt12uPItiWpQc7Rt3yaJ4/8XhO8ZUkKmHGRAXchVG1UtLuYQSPflL3yIV2eivc+2zE/5LprMH6K08RpKa+rroPqtve7FNCh/DA+X1fgzoWxRBhvHsJdM+YqTgiafsrVX9WcLStNmlnZzK2HZizQq9rhI4yS9zxBFhT0PcG42tjoH+aXB2WckWcwnIGN9LNsMR6+qqY1twdwAd/4MVW7zD9vqU0LAuTNb7kmzPktnYCV8Bf6QJx6gszprxP612zzY9oFYQ="
   file: ${TESTS_DIR}-${TESTS_SUFFIX}.zip
   skip_cleanup: true
+  on:
+    all_branches: true
 
 # possible results output/ 
 # x86_64-linux : i386-linux : m68k-linux : msdos : avr-embedded
